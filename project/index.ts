@@ -7,7 +7,6 @@ export const sum = (a: number, b: number) => {
         sum += (c + d * b) / a;
       }
     }
-
     return sum;
   }
   return a + b;
