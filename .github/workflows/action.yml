@@ -12,6 +12,6 @@ jobs:
       - uses: actions/checkout@v1
       - uses: sidharthv96/jest-coverage-report-action@Refactor
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          working_directory: project
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: project
           threshold: 80

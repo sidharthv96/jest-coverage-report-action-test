@@ -12,3 +12,4 @@ export const sum = (a: number, b: number) => {
 };
 
 export const subtr = (a: number, b: number) => a - b;
+// .
