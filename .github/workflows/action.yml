@@ -10,7 +10,7 @@ jobs:
       CI_JOB_NUMBER: 1
     steps:
       - uses: actions/checkout@v1
-      - uses: sidharthv96/jest-coverage-report-action@FailureComments
+      - uses: sidharthv96/jest-coverage-report-action@githubCache
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: project
