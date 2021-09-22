@@ -1,0 +1,290 @@
+{
+  "config": {
+    "forbidOnly": false,
+    "globalSetup": "/Users/sidv/dev/turgen/SaaS/tests/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/sidv/dev/turgen/SaaS/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "name": "",
+        "testDir": "/Users/sidv/dev/turgen/SaaS",
+        "testIgnore": [],
+        "testMatch": [
+          "**/?(*.)@(spec|test).@(ts|js|mjs)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "rootDir": "/Users/sidv/dev/turgen/SaaS",
+    "quiet": false,
+    "shard": null,
+    "updateSnapshots": "missing",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "tests/group.spec.ts",
+      "file": "tests/group.spec.ts",
+      "line": 0,
+      "column": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Group Operations",
+          "file": "tests/group.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Create new group",
+              "ok": true,
+              "tests": [
+                {
+                  "timeout": 0,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "file": "tests/group.spec.ts",
+              "line": 19,
+              "column": 3
+            },
+            {
+              "title": "Report an incident",
+              "ok": true,
+              "tests": [
+                {
+                  "timeout": 0,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "file": "tests/group.spec.ts",
+              "line": 37,
+              "column": 3
+            }
+          ],
+          "suites": [
+            {
+              "title": "Hello World",
+              "file": "tests/group.spec.ts",
+              "line": 12,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Hello Test",
+                  "ok": false,
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectName": "",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "status": "failed",
+                          "duration": 7,
+                          "error": {
+                            "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m\n    at /Users/sidv/dev/turgen/SaaS/tests/group.spec.ts:15:20\n    at FixtureRunner.resolveParametersAndRunHookOrTest (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/fixtures.js:303:12)\n    at processTicksAndRejections (internal/process/task_queues.js:95:5)\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                          },
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "attachments": []
+                        },
+                        {
+                          "workerIndex": 2,
+                          "status": "failed",
+                          "duration": 9,
+                          "error": {
+                            "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m\n    at /Users/sidv/dev/turgen/SaaS/tests/group.spec.ts:15:20\n    at FixtureRunner.resolveParametersAndRunHookOrTest (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/fixtures.js:303:12)\n    at processTicksAndRejections (internal/process/task_queues.js:95:5)\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                          },
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 1,
+                          "attachments": []
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "file": "tests/group.spec.ts",
+                  "line": 13,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/incident.spec.ts",
+      "file": "tests/incident.spec.ts",
+      "line": 0,
+      "column": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Incident operations",
+          "file": "tests/incident.spec.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "submit new finding",
+              "ok": true,
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "skipped",
+                      "duration": 1324,
+                      "error": {
+                        "message": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================",
+                        "stack": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================\n    at SaasGroupPage.goto (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/saasGroupPage.ts:11:21)\n    at IncidentPage.open (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/incidentPage.ts:15:5)\n    at /Users/sidv/dev/turgen/SaaS/tests/incident.spec.ts:19:5\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                      },
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/sidv/dev/turgen/SaaS/test-results/tests-incident-submit-new-finding/test-failed-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "file": "tests/incident.spec.ts",
+              "line": 14,
+              "column": 3
+            },
+            {
+              "title": "edit finding",
+              "ok": true,
+              "tests": [
+                {
+                  "timeout": 0,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "file": "tests/incident.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "delete finding",
+              "ok": true,
+              "tests": [
+                {
+                  "timeout": 0,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "file": "tests/incident.spec.ts",
+              "line": 47,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
