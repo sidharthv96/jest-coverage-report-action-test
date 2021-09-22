@@ -15,4 +15,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: project
           coverage-file: results.json
+          skip-step: all
           threshold: 80
