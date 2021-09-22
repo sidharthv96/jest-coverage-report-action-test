@@ -70,108 +70,77 @@
               "ok": true,
               "tests": [
                 {
-                  "timeout": 0,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectName": "",
                   "results": [
                     {
                       "workerIndex": 0,
-                      "status": "skipped",
-                      "duration": 0,
+                      "status": "passed",
+                      "duration": 6349,
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "file": "tests/group.spec.ts",
-              "line": 19,
+              "line": 12,
               "column": 3
             },
             {
               "title": "Report an incident",
-              "ok": true,
+              "ok": false,
               "tests": [
                 {
-                  "timeout": 0,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectName": "",
                   "results": [
                     {
                       "workerIndex": 0,
-                      "status": "skipped",
-                      "duration": 0,
+                      "status": "timedOut",
+                      "duration": 30098,
+                      "error": {
+                        "message": "Pending operations:\n  - page.waitForNavigation at tests/utils/pages/saasGroupPage.ts:21:17\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  - page.waitForLoadState at tests/utils/pages/saasGroupPage.ts:12:21\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  - page.click at tests/utils/pages/saasGroupPage.ts:11:21\n\npage.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================",
+                        "stack": "Pending operations:\n  - page.waitForNavigation at tests/utils/pages/saasGroupPage.ts:21:17\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  - page.waitForLoadState at tests/utils/pages/saasGroupPage.ts:12:21\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  -  at <unknown>\n  - page.click at tests/utils/pages/saasGroupPage.ts:11:21\n\npage.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================\n    at SaasGroupPage.goto (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/saasGroupPage.ts:11:21)\n    at /Users/sidv/dev/turgen/SaaS/tests/group.spec.ts:33:5\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                      },
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/sidv/dev/turgen/SaaS/test-results/tests-group-Report-an-incident/test-failed-1.png"
+                        }
+                      ]
+                    },
+                    {
+                      "workerIndex": 2,
+                      "status": "timedOut",
+                      "duration": 60013,
+                      "error": {
+                        "message": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================",
+                        "stack": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================\n    at SaasGroupPage.goto (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/saasGroupPage.ts:11:21)\n    at /Users/sidv/dev/turgen/SaaS/tests/group.spec.ts:33:5\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                      },
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "unexpected"
                 }
               ],
               "file": "tests/group.spec.ts",
-              "line": 37,
+              "line": 30,
               "column": 3
-            }
-          ],
-          "suites": [
-            {
-              "title": "Hello World",
-              "file": "tests/group.spec.ts",
-              "line": 12,
-              "column": 8,
-              "specs": [
-                {
-                  "title": "Hello Test",
-                  "ok": false,
-                  "tests": [
-                    {
-                      "timeout": 30000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectName": "",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "status": "failed",
-                          "duration": 7,
-                          "error": {
-                            "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m",
-                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m\n    at /Users/sidv/dev/turgen/SaaS/tests/group.spec.ts:15:20\n    at FixtureRunner.resolveParametersAndRunHookOrTest (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/fixtures.js:303:12)\n    at processTicksAndRejections (internal/process/task_queues.js:95:5)\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
-                          },
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "attachments": []
-                        },
-                        {
-                          "workerIndex": 2,
-                          "status": "failed",
-                          "duration": 9,
-                          "error": {
-                            "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m",
-                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeFalsy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mtrue\u001b[39m\n    at /Users/sidv/dev/turgen/SaaS/tests/group.spec.ts:15:20\n    at FixtureRunner.resolveParametersAndRunHookOrTest (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/fixtures.js:303:12)\n    at processTicksAndRejections (internal/process/task_queues.js:95:5)\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
-                          },
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 1,
-                          "attachments": []
-                        }
-                      ],
-                      "status": "unexpected"
-                    }
-                  ],
-                  "file": "tests/group.spec.ts",
-                  "line": 13,
-                  "column": 5
-                }
-              ]
             }
           ]
         }
@@ -192,7 +161,7 @@
           "specs": [
             {
               "title": "submit new finding",
-              "ok": true,
+              "ok": false,
               "tests": [
                 {
                   "timeout": 30000,
@@ -202,11 +171,11 @@
                   "results": [
                     {
                       "workerIndex": 1,
-                      "status": "skipped",
-                      "duration": 1324,
+                      "status": "timedOut",
+                      "duration": 30112,
                       "error": {
-                        "message": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================",
-                        "stack": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================\n    at SaasGroupPage.goto (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/saasGroupPage.ts:11:21)\n    at IncidentPage.open (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/incidentPage.ts:15:5)\n    at /Users/sidv/dev/turgen/SaaS/tests/incident.spec.ts:19:5\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                        "message": "Pending operations:\n  - page.click at tests/utils/pages/saasGroupPage.ts:11:21\n\npage.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================",
+                        "stack": "Pending operations:\n  - page.click at tests/utils/pages/saasGroupPage.ts:11:21\n\npage.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================\n    at SaasGroupPage.goto (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/saasGroupPage.ts:11:21)\n    at IncidentPage.open (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/incidentPage.ts:15:5)\n    at /Users/sidv/dev/turgen/SaaS/tests/incident.spec.ts:19:5\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
                       },
                       "stdout": [],
                       "stderr": [],
@@ -218,9 +187,22 @@
                           "path": "/Users/sidv/dev/turgen/SaaS/test-results/tests-incident-submit-new-finding/test-failed-1.png"
                         }
                       ]
+                    },
+                    {
+                      "workerIndex": 3,
+                      "status": "timedOut",
+                      "duration": 60005,
+                      "error": {
+                        "message": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================",
+                        "stack": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================\n    at SaasGroupPage.goto (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/saasGroupPage.ts:11:21)\n    at IncidentPage.open (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/incidentPage.ts:15:5)\n    at /Users/sidv/dev/turgen/SaaS/tests/incident.spec.ts:19:5\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                      },
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "unexpected"
                 }
               ],
               "file": "tests/incident.spec.ts",
@@ -232,19 +214,29 @@
               "ok": true,
               "tests": [
                 {
-                  "timeout": 0,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectName": "",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 4,
                       "status": "skipped",
-                      "duration": 0,
+                      "duration": 17345,
+                      "error": {
+                        "message": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================",
+                        "stack": "page.click: Protocol error (Runtime.callFunctionOn): Target closed.\n=========================== logs ===========================\nwaiting for selector \"text=1632292208949\"\n============================================================\n    at SaasGroupPage.goto (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/saasGroupPage.ts:11:21)\n    at IncidentPage.open (/Users/sidv/dev/turgen/SaaS/tests/utils/pages/incidentPage.ts:15:5)\n    at /Users/sidv/dev/turgen/SaaS/tests/incident.spec.ts:35:5\n    at WorkerRunner._runTestWithBeforeHooks (/Users/sidv/dev/turgen/SaaS/node_modules/@playwright/test/lib/test/workerRunner.js:426:7)"
+                      },
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/sidv/dev/turgen/SaaS/test-results/tests-incident-edit-finding/test-failed-1.png"
+                        }
+                      ]
                     }
                   ],
                   "status": "skipped"
