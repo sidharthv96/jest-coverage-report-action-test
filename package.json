@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "ci": "playwright test --reporter=json,line"
   },
   "devDependencies": {
     "@playwright/test": "1.14.1"
