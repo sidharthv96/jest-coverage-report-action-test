@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "playwright test",
-    "test:ci": "node node_modules/.bin/playwright test --reporter=json,line"
+    "test:ci": "PLAYWRIGHT_JSON_OUTPUT_NAME=report.json playwright test --reporter=json,line"
   },
   "devDependencies": {
     "@playwright/test": "1.14.1"
