@@ -13,7 +13,5 @@ jobs:
       - uses: sidharthv96/jest-coverage-report-action@Playwright
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: project
-          coverage-file: results.json
-          skip-step: all
+          working-directory: app
           threshold: 80
