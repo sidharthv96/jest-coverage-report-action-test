@@ -10,6 +10,9 @@ jobs:
       CI_JOB_NUMBER: 1
     steps:
       - uses: actions/checkout@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
       - uses: sidharthv96/jest-coverage-report-action@Playwright
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
