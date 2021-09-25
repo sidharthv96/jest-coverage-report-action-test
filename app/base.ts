@@ -177,9 +177,9 @@ export class BaseReporter implements Reporter {
         this.printTestOutput
       );
       console.log(
-        `::error file=${filePath},title=${title},line=${position.line},col=${
-          position.column
-        }::${message.replace(/\n/g, "%0A")}`
+        `::error file=app/${filePath},title=${title},line=${
+          position.line
+        },col=${position.column}::${message.replace(/\n/g, "%0A")}`
       );
     });
   }
