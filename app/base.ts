@@ -170,13 +170,16 @@ export class BaseReporter implements Reporter {
 
   private _printFailures(failures: TestCase[]) {
     failures.forEach((test, index) => {
+      const { filePath, title, message, position } = formatFailure(
+        this.config,
+        test,
+        index + 1,
+        this.printTestOutput
+      );
       console.log(
-        `::error file=app/base.ts,title=Failed::${formatFailure(
-          this.config,
-          test,
-          index + 1,
-          this.printTestOutput
-        ).replace(/\n/g, "%0A")}`
+        `::error file=${filePath},title=${title},line=${position.line},col=${
+          position.column
+        }::${message.replace(/\n/g, "%0A")}`
       );
     });
   }
@@ -188,16 +191,29 @@ export class BaseReporter implements Reporter {
   }
 }
 
+export interface Annotation {
+  filePath: string;
+  title: string;
+  message: string;
+  position?: Position;
+}
+
 export function formatFailure(
   config: FullConfig,
   test: TestCase,
   index?: number,
   stdio?: boolean
-): string {
+): Annotation {
+  const title = formatTestHeader(config, test, "  ", index);
+  const filePath = relativeTestPath(config, test);
+  let position: Position;
   const lines: string[] = [];
-  lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
+
+  lines.push(colors.red(title));
   for (const result of test.results) {
-    const resultTokens = formatResultFailure(test, result, "    ");
+    const failureDetails = formatResultFailure(test, result, "    ");
+    const resultTokens = failureDetails.tokens;
+    position = failureDetails.position;
     if (!resultTokens.length) continue;
     if (result.retry) {
       lines.push("");
@@ -225,14 +241,23 @@ export function formatFailure(
     }
   }
   lines.push("");
-  return lines.join("\n");
+  return {
+    filePath,
+    position,
+    title,
+    message: lines.join("\n"),
+  };
 }
 
+interface FailureDetails {
+  position?: Position;
+  tokens: string[];
+}
 export function formatResultFailure(
   test: TestCase,
   result: TestResult,
   initialIndent: string
-): string[] {
+): FailureDetails {
   const resultTokens: string[] = [];
   if (result.status === "timedOut") {
     resultTokens.push("");
@@ -249,11 +274,15 @@ export function formatResultFailure(
       indent(colors.red(`Expected to fail, but passed.`), initialIndent)
     );
   }
-  if (result.error !== undefined)
-    resultTokens.push(
-      indent(formatError(result.error, test.location.file), initialIndent)
-    );
-  return resultTokens;
+  let error: ErrorDetails;
+  if (result.error !== undefined) {
+    error = formatError(result.error, test.location.file);
+    resultTokens.push(indent(error.message, initialIndent));
+  }
+  return {
+    tokens: resultTokens,
+    position: error?.position,
+  };
 }
 
 function relativeTestPath(config: FullConfig, test: TestCase): string {
@@ -293,9 +322,15 @@ function formatTestHeader(
   return pad(header, "=");
 }
 
-export function formatError(error: TestError, file?: string) {
+interface ErrorDetails {
+  position: Position;
+  message: string;
+}
+
+export function formatError(error: TestError, file?: string): ErrorDetails {
   const stack = error.stack;
   const tokens = [];
+  let position: Position;
   if (stack) {
     tokens.push("");
     const lines = stack.split("\n");
@@ -303,7 +338,7 @@ export function formatError(error: TestError, file?: string) {
     if (firstStackLine === -1) firstStackLine = lines.length;
     tokens.push(lines.slice(0, firstStackLine).join("\n"));
     const stackLines = lines.slice(firstStackLine);
-    const position = file ? positionInFile(stackLines, file) : null;
+    position = file ? positionInFile(stackLines, file) : null;
     if (position) {
       const source = fs.readFileSync(file!, "utf8");
       tokens.push("");
@@ -324,7 +359,10 @@ export function formatError(error: TestError, file?: string) {
     tokens.push("");
     tokens.push(error.value);
   }
-  return tokens.join("\n");
+  return {
+    position,
+    message: tokens.join("\n"),
+  };
 }
 
 function pad(line: string, char: string): string {
@@ -336,10 +374,15 @@ function indent(lines: string, tab: string) {
   return lines.replace(/^(?=.+$)/gm, tab);
 }
 
+interface Position {
+  column: number;
+  line: number;
+}
+
 function positionInFile(
   stackLines: string[],
   file: string
-): { column: number; line: number } | undefined {
+): Position | undefined {
   // Stack will have /private/var/folders instead of /var/folders on Mac.
   file = fs.realpathSync(file);
   for (const line of stackLines) {
