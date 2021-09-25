@@ -170,18 +170,19 @@ export class BaseReporter implements Reporter {
 
   private _printFailures(failures: TestCase[]) {
     failures.forEach((test, index) => {
-      const { filePath, title, message, position } = formatFailure(
+      const annotations = formatFailure(
         this.config,
         test,
         index + 1,
         this.printTestOutput
       );
-      console.log(filePath, position);
-      console.log(
-        `::error file=${filePath},title=${title},line=${position.line},col=${
-          position.column
-        }::${message.replace(/\n/g, "%0A")}`
-      );
+      annotations.forEach(({ filePath, title, message, position }) => {
+        console.log(
+          `::error file=${filePath},title=${title},line=${position.line},col=${
+            position.column
+          }::${message.replace(/\n/g, "%0A")}`
+        );
+      });
     });
   }
 
@@ -204,20 +205,19 @@ export function formatFailure(
   test: TestCase,
   index?: number,
   stdio?: boolean
-): Annotation {
+): Annotation[] {
   const title = formatTestTitle(config, test);
   const filePath = path.relative(
     process.env["GITHUB_WORKSPACE"],
     test.location.file
   );
-  let position: Position;
   const lines: string[] = [];
-
+  const annotations: Annotation[] = [];
   lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
   for (const result of test.results) {
     const failureDetails = formatResultFailure(test, result, "    ");
     const resultTokens = failureDetails.tokens;
-    position = failureDetails.position;
+    const position = failureDetails.position;
     if (!resultTokens.length) continue;
     if (result.retry) {
       lines.push("");
@@ -243,14 +243,17 @@ export function formatFailure(
           pad("", "-")
       );
     }
+
+    lines.push("");
+    annotations.push({
+      filePath,
+      position,
+      title,
+      message: resultTokens.join("\n"),
+    });
   }
-  lines.push("");
-  return {
-    filePath,
-    position,
-    title,
-    message: lines.join("\n"),
-  };
+
+  return annotations;
 }
 
 interface FailureDetails {
