@@ -346,6 +346,22 @@ export function formatError(error: TestError, file?: string): ErrorDetails {
     tokens.push(lines.slice(0, firstStackLine).join("\n"));
     const stackLines = lines.slice(firstStackLine);
     position = file ? positionInFile(stackLines, file) : null;
+    tokens.push("::group::Stack");
+
+    if (position) {
+      const source = fs.readFileSync(file!, "utf8");
+      tokens.push("");
+      tokens.push(
+        codeFrameColumns(
+          source,
+          { start: position },
+          { highlightCode: colors.enabled }
+        )
+      );
+    }
+    tokens.push("");
+    tokens.push(colors.dim(stackLines.join("\n")));
+    tokens.push("::endgroup::");
   } else if (error.message) {
     tokens.push("");
     tokens.push(error.message);
