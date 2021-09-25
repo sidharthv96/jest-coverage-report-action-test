@@ -17,4 +17,3 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: app
-          threshold: 80
