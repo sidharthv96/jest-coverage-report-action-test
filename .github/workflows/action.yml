@@ -6,6 +6,7 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:focal
     env:
       CI_JOB_NUMBER: 1
     steps:
@@ -15,6 +16,5 @@ jobs:
           node-version: "14"
       - run: |
           cd app
-          npx playwright install-deps
           npm install
           npm run test
