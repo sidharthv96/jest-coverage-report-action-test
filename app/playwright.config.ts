@@ -15,9 +15,10 @@ const config: PlaywrightTestConfig = {
     port: 3000,
   },
   reporter: [
+    ["./github.ts"],
     ["dot"],
-    ["json", { outputFile: "test-results/results.json" }],
-    ["junit", { outputFile: "test-results/results.xml" }],
+    // ["json", { outputFile: "test-results/results.json" }],
+    // ["junit", { outputFile: "test-results/results.xml" }],
   ],
 };
 
