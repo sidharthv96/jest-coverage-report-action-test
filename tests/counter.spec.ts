@@ -47,7 +47,9 @@ test.describe("suite 1", () => {
     // Click text=About
     await page.click("text=About");
     expect(page.url()).toBe("http://localhost:3000/about");
-    expect(false).toBeTruthy();
+    expect(Math.random() < 0.8).toBeTruthy();
+    expect(Math.random() < 0.8).toBeTruthy();
+    expect(Math.random() < 0.8).toBeTruthy();
     // Click text=About this app
     await page.click("text=About this app");
   });
