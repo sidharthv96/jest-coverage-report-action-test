@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "test": "playwright test",
-    "test:ci": "PLAYWRIGHT_JSON_OUTPUT_NAME=report.json playwright test --reporter=json,line"
-  },
-  "devDependencies": {
-    "@playwright/test": "1.15.0"
-  }
-}

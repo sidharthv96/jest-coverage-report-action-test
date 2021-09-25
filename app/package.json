@@ -4,11 +4,13 @@
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
-    "preview": "svelte-kit preview"
+    "preview": "svelte-kit preview",
+    "test:ci": "PLAYWRIGHT_JSON_OUTPUT_NAME=report.json playwright test --reporter=json,line"
   },
   "devDependencies": {
     "@sveltejs/kit": "next",
-    "svelte": "^3.34.0"
+    "svelte": "^3.34.0",
+    "@playwright/test": "1.15.0"
   },
   "type": "module",
   "dependencies": {

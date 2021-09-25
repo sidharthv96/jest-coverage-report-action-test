@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
-      - uses: sidharthv96/playwright-report-action@PlaywrightReport
+      - uses: sidharthv96/playwright-report-action@fixTest
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: app
