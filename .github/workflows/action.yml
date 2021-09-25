@@ -17,4 +17,5 @@ jobs:
           npx playwright install-deps
           cd app
           npm install
+          node app/test.js
           npm run test
