@@ -1,0 +1,27 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "svelte-kit dev",
+    "build": "svelte-kit build",
+    "preview": "svelte-kit preview",
+    "test": "playwright test",
+    "test:ci": "playwright test --reporter=json,line"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.15.0",
+    "@sveltejs/kit": "next",
+    "svelte": "^3.34.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@babel/code-frame": "^7.14.5",
+    "@fontsource/fira-mono": "^4.5.0",
+    "@lukeed/uuid": "^2.0.0",
+    "colors": "^1.4.0",
+    "cookie": "^0.4.1",
+    "ms": "^3.0.0-canary.1",
+    "playwright": "^1.15.0",
+    "stack-utils": "^2.0.5"
+  }
+}
