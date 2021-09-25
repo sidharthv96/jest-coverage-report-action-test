@@ -10,6 +10,8 @@ import {
 class MyReporter extends BaseReporter {
   override async onEnd(result: FullResult) {
     await super.onEnd(result);
+    console.log(process.cwd());
+    console.log(process.env);
     process.stdout.write("\n");
     this.epilogue(true);
   }
