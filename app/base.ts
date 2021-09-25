@@ -176,10 +176,11 @@ export class BaseReporter implements Reporter {
         index + 1,
         this.printTestOutput
       );
+      console.log(filePath, position);
       console.log(
-        `::error file=app/${filePath},title=${title},line=${
-          position.line
-        },col=${position.column}::${message.replace(/\n/g, "%0A")}`
+        `::error file=${filePath},title=${title},line=${position.line},col=${
+          position.column
+        }::${message.replace(/\n/g, "%0A")}`
       );
     });
   }
@@ -204,12 +205,15 @@ export function formatFailure(
   index?: number,
   stdio?: boolean
 ): Annotation {
-  const title = formatTestHeader(config, test, "  ", index);
-  const filePath = relativeTestPath(config, test);
+  const title = formatTestTitle(config, test);
+  const filePath = path.relative(
+    process.env["GITHUB_WORKSPACE"],
+    test.location.file
+  );
   let position: Position;
   const lines: string[] = [];
 
-  lines.push(colors.red(title));
+  lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
   for (const result of test.results) {
     const failureDetails = formatResultFailure(test, result, "    ");
     const resultTokens = failureDetails.tokens;
