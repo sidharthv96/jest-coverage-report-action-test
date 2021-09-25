@@ -50,6 +50,14 @@ test.describe("suite 1", () => {
     expect(Math.random() < 0.8).toBeTruthy();
     expect(Math.random() < 0.8).toBeTruthy();
     expect(Math.random() < 0.8).toBeTruthy();
+
+    expect(Math.random() < 0.8).toBeTruthy();
+    expect(Math.random() < 0.8).toBeTruthy();
+    expect(Math.random() < 0.8).toBeTruthy();
+
+    expect(Math.random() < 0.8).toBeTruthy();
+    expect(Math.random() < 0.8).toBeTruthy();
+    expect(Math.random() < 0.8).toBeTruthy();
     // Click text=About this app
     await page.click("text=About this app");
   });
