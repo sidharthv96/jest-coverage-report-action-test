@@ -176,7 +176,7 @@ export class BaseReporter implements Reporter {
           test,
           index + 1,
           this.printTestOutput
-        ).replace("\n", "%0A")}`
+        ).replace(/\n/g, "%0A")}`
       );
     });
   }
