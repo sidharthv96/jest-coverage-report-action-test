@@ -15,7 +15,6 @@ jobs:
           node-version: "14"
       - run: |
           cd app
-          node test.js
           npx playwright install-deps
           npm install
           npm run test
