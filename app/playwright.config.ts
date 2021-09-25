@@ -16,7 +16,6 @@ const config: PlaywrightTestConfig = {
   },
   reporter: [
     ["./github.ts"],
-    ["dot"],
     // ["json", { outputFile: "test-results/results.json" }],
     // ["junit", { outputFile: "test-results/results.xml" }],
   ],

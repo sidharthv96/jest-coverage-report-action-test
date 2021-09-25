@@ -99,9 +99,9 @@ export class BaseReporter implements Reporter {
       const duration = fileDurations[i][1];
       if (duration <= this.config.reportSlowTests.threshold) break;
       console.log(
-        colors.yellow("  Slow test: ") +
-          fileDurations[i][0] +
-          colors.yellow(` (${milliseconds(duration)})`)
+        `::warning title=Slow Test::${fileDurations[i][0]} (${milliseconds(
+          duration
+        )})`
       );
     }
   }
@@ -171,7 +171,12 @@ export class BaseReporter implements Reporter {
   private _printFailures(failures: TestCase[]) {
     failures.forEach((test, index) => {
       console.log(
-        formatFailure(this.config, test, index + 1, this.printTestOutput)
+        `::error file=app/base.ts,title=Failed::${formatFailure(
+          this.config,
+          test,
+          index + 1,
+          this.printTestOutput
+        )}`
       );
     });
   }
@@ -199,40 +204,7 @@ export function formatFailure(
       lines.push(colors.gray(pad(`    Retry #${result.retry}`, "-")));
     }
     lines.push(...resultTokens);
-    for (let i = 0; i < result.attachments.length; ++i) {
-      const attachment = result.attachments[i];
-      lines.push("");
-      lines.push(
-        colors.cyan(
-          pad(
-            `    attachment #${i + 1}: ${attachment.name} (${
-              attachment.contentType
-            })`,
-            "-"
-          )
-        )
-      );
-      if (attachment.path) {
-        const relativePath = path.relative(process.cwd(), attachment.path);
-        lines.push(colors.cyan(`    ${relativePath}`));
-        // Make this extensible
-        if (attachment.name === "trace") {
-          lines.push(colors.cyan(`    Usage:`));
-          lines.push("");
-          lines.push(
-            colors.cyan(`        npx playwright show-trace ${relativePath}`)
-          );
-          lines.push("");
-        }
-      } else {
-        if (attachment.contentType.startsWith("text/")) {
-          let text = attachment.body!.toString();
-          if (text.length > 300) text = text.slice(0, 300) + "...";
-          lines.push(colors.cyan(`    ${text}`));
-        }
-      }
-      lines.push(colors.cyan(pad("   ", "-")));
-    }
+
     const output = ((result as any)[kOutputSymbol] || []) as TestResultOutput[];
     if (stdio && output.length) {
       const outputText = output
