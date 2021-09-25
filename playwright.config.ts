@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
     port: 3000,
   },
   reporter: [
-    ["list"],
+    ["dot"],
     ["json", { outputFile: "test-results/results.json" }],
     ["junit", { outputFile: "test-results/results.xml" }],
   ],
