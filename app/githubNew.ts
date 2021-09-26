@@ -98,8 +98,7 @@ export class GithubReporter extends BaseReporter {
   githubLogger = new GithubLogger();
 
   override async onEnd(result: FullResult) {
-    this.duration = monotonicTime() - this.monotonicStartTime;
-    this.result = result;
+    super.onEnd(result);
     this.epilogue(true);
   }
 
@@ -114,12 +113,13 @@ export class GithubReporter extends BaseReporter {
     for (let i = 0; i < count; ++i) {
       const duration = fileDurations[i][1];
       if (duration <= this.config.reportSlowTests.threshold) break;
-      this.githubLogger.warning(
-        `${fileDurations[i][0]} (${milliseconds(duration)})`,
-        {
-          title: "Slow Test",
-        }
+      const filePath = workspaceRelativePath(
+        path.join(process.cwd(), fileDurations[i][0])
       );
+      this.githubLogger.warning(`${filePath} (${milliseconds(duration)})`, {
+        title: "Slow Test",
+        file: filePath,
+      });
     }
   }
 
@@ -215,6 +215,10 @@ export interface Annotation {
   position?: Position;
 }
 
+function workspaceRelativePath(filePath: string): string {
+  return path.relative(process.env["GITHUB_WORKSPACE"] ?? "", filePath);
+}
+
 export function formatFailure(
   config: FullConfig,
   test: TestCase,
@@ -222,10 +226,7 @@ export function formatFailure(
   stdio?: boolean
 ): Annotation[] {
   const title = formatTestTitle(config, test);
-  const filePath = path.relative(
-    process.env["GITHUB_WORKSPACE"] ?? "",
-    test.location.file
-  );
+  const filePath = workspaceRelativePath(test.location.file);
   const annotations: Annotation[] = [];
   for (const result of test.results) {
     const lines: string[] = [];
