@@ -24,10 +24,8 @@ import StackUtils from "stack-utils";
 import {
   FullConfig,
   TestCase,
-  Suite,
   TestResult,
   TestError,
-  Reporter,
   FullResult,
   TestStep,
 } from "@playwright/test/reporter";
@@ -35,7 +33,6 @@ import {
   monotonicTime,
   relativeTestPath,
   Position,
-  pad,
   stripAnsiEscapes,
   indent,
   stepSuffix,
@@ -238,7 +235,7 @@ export function formatFailure(
     if (!resultTokens.length) continue;
     if (result.retry) {
       lines.push("");
-      lines.push(colors.gray(pad(`    Retry #${result.retry}`, "-")));
+      lines.push(colors.gray(`    Retry #${result.retry}`));
     }
     lines.push(...resultTokens);
 
@@ -253,11 +250,7 @@ export function formatFailure(
         .join("");
       lines.push("");
       lines.push(
-        colors.gray(pad("--- Test output", "-")) +
-          "\n\n" +
-          outputText +
-          "\n" +
-          pad("", "-")
+        colors.gray("--- Test output ---") + "\n\n" + outputText + "\n"
       );
     }
 
