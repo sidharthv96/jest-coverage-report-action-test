@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import { codeFrameColumns } from "@babel/code-frame";
-import colors from "colors/safe";
-import fs from "fs";
+import { codeFrameColumns } from '@babel/code-frame';
+import fs from 'fs';
 // @ts-ignore
-import milliseconds from "ms";
-import path from "path";
-import StackUtils from "stack-utils";
+import milliseconds from 'ms';
+import path from 'path';
 import {
   FullConfig,
   TestCase,
@@ -28,9 +26,8 @@ import {
   TestError,
   FullResult,
   TestStep,
-} from "@playwright/test/reporter";
+} from '@playwright/test/reporter';
 import {
-  monotonicTime,
   relativeTestPath,
   Position,
   stripAnsiEscapes,
@@ -39,59 +36,74 @@ import {
   positionInFile,
   formatTestHeader,
   BaseReporter,
-} from "./base";
+  kOutputSymbol,
+  TestResultOutput,
+} from './base';
 
-const stackUtils = new StackUtils();
+type GithubLogType = 'debug' | 'notice' | 'warning' | 'error';
 
-type TestResultOutput = { chunk: string | Buffer; type: "stdout" | "stderr" };
-const kOutputSymbol = Symbol("output");
-
-type GithubLogType = "debug" | "notice" | "warning" | "error";
-interface GithubLogOptions {
-  title?: string;
-  file?: string;
-  col?: number;
-  endColumn?: number;
-  line?: number;
-  endLine?: number;
-}
+type GithubLogOptions = Partial<{
+  title: string;
+  file: string;
+  col: number;
+  endColumn: number;
+  line: number;
+  endLine: number;
+}>;
 
 class GithubLogger {
-  shouldLog = true;
-  isCI: boolean = process.env.CI === "true";
+	isCI: boolean = process.env.CI === 'true';
   isGithubAction: boolean = process.env.GITHUB_ACTION !== undefined;
+  shouldLog = (this.isCI && this.isGithubAction) || process.env.PW_GH_ACTION_DEBUG === 'true' ;
 
   log(
     message: string,
-    type: GithubLogType = "notice",
+    type: GithubLogType = 'notice',
     options: GithubLogOptions = {}
   ) {
     if (this.shouldLog) {
-      if (this.isGithubAction) {
-        message = message.replace(/\n/g, "%0A");
-      }
+      if (this.isGithubAction) message = message.replace(/\n/g, '%0A');
+
       const configs = Object.entries(options)
-        .map(([key, option]) => `${key}=${option}`)
-        .join(",");
+          .map(([key, option]) => `${key}=${option}`)
+          .join(',');
       console.log(`::${type} ${configs}::${message}`);
     }
   }
 
   debug(message: string, options?: GithubLogOptions) {
-    this.log(message, "debug", options);
+    this.log(message, 'debug', options);
   }
 
   error(message: string, options?: GithubLogOptions) {
-    this.log(message, "error", options);
+    this.log(message, 'error', options);
   }
 
   notice(message: string, options?: GithubLogOptions) {
-    this.log(message, "notice", options);
+    this.log(message, 'notice', options);
   }
 
   warning(message: string, options?: GithubLogOptions) {
-    this.log(message, "warning", options);
+    this.log(message, 'warning', options);
   }
+}
+
+
+interface Annotation {
+  filePath: string;
+  title: string;
+  message: string;
+  position?: Position;
+}
+
+interface FailureDetails {
+  position?: Position;
+  tokens: string[];
+}
+
+interface ErrorDetails {
+  position?: Position;
+  message: string;
 }
 
 export class GithubReporter extends BaseReporter {
@@ -107,17 +119,17 @@ export class GithubReporter extends BaseReporter {
     const fileDurations = [...this.fileDurations.entries()];
     fileDurations.sort((a, b) => b[1] - a[1]);
     const count = Math.min(
-      fileDurations.length,
-      this.config.reportSlowTests.max || Number.POSITIVE_INFINITY
+        fileDurations.length,
+        this.config.reportSlowTests.max || Number.POSITIVE_INFINITY
     );
     for (let i = 0; i < count; ++i) {
       const duration = fileDurations[i][1];
       if (duration <= this.config.reportSlowTests.threshold) break;
       const filePath = workspaceRelativePath(
-        path.join(process.cwd(), fileDurations[i][0])
+          path.join(process.cwd(), fileDurations[i][0])
       );
       this.githubLogger.warning(`${filePath} (${milliseconds(duration)})`, {
-        title: "Slow Test",
+        title: 'Slow Test',
         file: filePath,
       });
     }
@@ -130,65 +142,59 @@ export class GithubReporter extends BaseReporter {
     const unexpected: TestCase[] = [];
     const flaky: TestCase[] = [];
 
-    this.suite.allTests().forEach((test) => {
+    this.suite.allTests().forEach(test => {
       switch (test.outcome()) {
-        case "skipped": {
+        case 'skipped': {
           ++skipped;
-          if (test.results.some((result) => !!result.error))
+          if (test.results.some(result => !!result.error))
             skippedWithError.push(test);
           break;
         }
-        case "expected":
+        case 'expected':
           ++expected;
           break;
-        case "unexpected":
+        case 'unexpected':
           unexpected.push(test);
           break;
-        case "flaky":
+        case 'flaky':
           flaky.push(test);
           break;
       }
     });
 
     const noticeLines: string[] = [];
-    noticeLines.push("");
+    noticeLines.push('');
     if (unexpected.length) {
-      noticeLines.push(colors.red(`  ${unexpected.length} failed`));
+      noticeLines.push(`  ${unexpected.length} failed`);
       for (const test of unexpected)
-        noticeLines.push(
-          colors.red(formatTestHeader(this.config, test, "    "))
-        );
+        noticeLines.push(formatTestHeader(this.config, test, '    '));
     }
     if (flaky.length) {
-      noticeLines.push(colors.yellow(`  ${flaky.length} flaky`));
+      noticeLines.push(`  ${flaky.length} flaky`);
       for (const test of flaky)
-        noticeLines.push(
-          colors.yellow(formatTestHeader(this.config, test, "    "))
-        );
+        noticeLines.push(formatTestHeader(this.config, test, '    '));
     }
-    if (skipped) noticeLines.push(colors.yellow(`  ${skipped} skipped`));
-    if (expected)
+    if (skipped) noticeLines.push(`  ${skipped} skipped`);
+    if (expected) {
       noticeLines.push(
-        colors.green(`  ${expected} passed`) +
-          colors.dim(` (${milliseconds(this.duration)})`)
+          `  ${expected} passed` + ` (${milliseconds(this.duration)})`
       );
-    if (this.result.status === "timedout")
+    }
+    if (this.result.status === 'timedout') {
       noticeLines.push(
-        colors.red(
           `  Timed out waiting ${
             this.config.globalTimeout / 1000
           }s for the entire test run`
-        )
       );
+    }
 
-    this.githubLogger.notice(noticeLines.join("\n"), {
-      title: "Playwright run summary",
+    this.githubLogger.notice(noticeLines.join('\n'), {
+      title: '🎭 Playwright Run Summary',
     });
 
     const failuresToPrint = [...unexpected, ...flaky, ...skippedWithError];
-    if (full && failuresToPrint.length) {
+    if (full && failuresToPrint.length)
       this._printFailureAnnotations(failuresToPrint);
-    }
 
     this._printSlowTestAnnotations();
   }
@@ -197,26 +203,23 @@ export class GithubReporter extends BaseReporter {
     failures.forEach((test, index) => {
       const annotations = formatFailure(this.config, test, index + 1, true);
       annotations.forEach(({ filePath, title, message, position }) => {
-        this.githubLogger.error(message, {
+        const options: GithubLogOptions = {
           file: filePath,
           title,
-          line: position.line,
-          col: position.column,
-        });
+        };
+        if (position) {
+          options.line = position.line;
+          options.col = position.column;
+        }
+        this.githubLogger.error(message, options);
       });
     });
   }
 }
 
-export interface Annotation {
-  filePath: string;
-  title: string;
-  message: string;
-  position?: Position;
-}
 
 function workspaceRelativePath(filePath: string): string {
-  return path.relative(process.env["GITHUB_WORKSPACE"] ?? "", filePath);
+  return path.relative(process.env['GITHUB_WORKSPACE'] ?? '', filePath);
 }
 
 export function formatFailure(
@@ -230,47 +233,40 @@ export function formatFailure(
   const annotations: Annotation[] = [];
   for (const result of test.results) {
     const lines: string[] = [];
-    lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
-    const failureDetails = formatResultFailure(test, result, "    ");
+    lines.push(formatTestHeader(config, test, '  ', index));
+    const failureDetails = formatResultFailure(test, result, '    ');
     const resultTokens = failureDetails.tokens;
     const position = failureDetails.position;
     if (!resultTokens.length) continue;
     if (result.retry) {
-      lines.push("");
-      lines.push(colors.gray(`    Retry #${result.retry}`));
+      lines.push('');
+      lines.push(`    Retry #${result.retry}`);
     }
     lines.push(...resultTokens);
 
     const output = ((result as any)[kOutputSymbol] || []) as TestResultOutput[];
     if (stdio && output.length) {
       const outputText = output
-        .map(({ chunk, type }) => {
-          const text = chunk.toString("utf8");
-          if (type === "stderr") return colors.red(stripAnsiEscapes(text));
-          return text;
-        })
-        .join("");
-      lines.push("");
-      lines.push(
-        colors.gray("--- Test output ---") + "\n\n" + outputText + "\n"
-      );
+          .map(({ chunk, type }) => {
+            const text = chunk.toString('utf8');
+            if (type === 'stderr') return stripAnsiEscapes(text);
+            return text;
+          })
+          .join('');
+      lines.push('');
+      lines.push('--- Test output ---' + '\n\n' + outputText + '\n');
     }
 
-    lines.push("");
+    lines.push('');
     annotations.push({
       filePath,
       position,
       title,
-      message: lines.join("\n"),
+      message: lines.join('\n'),
     });
   }
 
   return annotations;
-}
-
-interface FailureDetails {
-  position?: Position;
-  tokens: string[];
 }
 
 export function formatResultFailure(
@@ -279,22 +275,17 @@ export function formatResultFailure(
   initialIndent: string
 ): FailureDetails {
   const resultTokens: string[] = [];
-  if (result.status === "timedOut") {
-    resultTokens.push("");
+  if (result.status === 'timedOut') {
+    resultTokens.push('');
     resultTokens.push(
-      indent(
-        colors.red(`Timeout of ${test.timeout}ms exceeded.`),
-        initialIndent
-      )
+        indent(`Timeout of ${test.timeout}ms exceeded.`, initialIndent)
     );
   }
-  if (result.status === "passed" && test.expectedStatus === "failed") {
-    resultTokens.push("");
-    resultTokens.push(
-      indent(colors.red(`Expected to fail, but passed.`), initialIndent)
-    );
+  if (result.status === 'passed' && test.expectedStatus === 'failed') {
+    resultTokens.push('');
+    resultTokens.push(indent(`Expected to fail, but passed.`, initialIndent));
   }
-  let error: ErrorDetails;
+  let error: ErrorDetails | undefined = undefined;
   if (result.error !== undefined) {
     error = formatError(result.error, test.location.file);
     resultTokens.push(indent(error.message, initialIndent));
@@ -315,50 +306,44 @@ export function formatTestTitle(
   const location = `${relativeTestPath(config, test)}:${test.location.line}:${
     test.location.column
   }`;
-  const projectTitle = projectName ? `[${projectName}] › ` : "";
-  return `${projectTitle}${location} › ${titles.join(" ")}${stepSuffix(step)}`;
+  const projectTitle = projectName ? `[${projectName}] › ` : '';
+  return `${projectTitle}${location} › ${titles.join(' ')}${stepSuffix(step)}`;
 }
 
-interface ErrorDetails {
-  position: Position;
-  message: string;
-}
 
 export function formatError(error: TestError, file?: string): ErrorDetails {
   const stack = error.stack;
-  const tokens = [];
-  let position: Position;
+  const tokens = [''];
+  let position: Position | undefined;
+
   if (stack) {
-    tokens.push("");
-    const lines = stack.split("\n");
-    let firstStackLine = lines.findIndex((line) => line.startsWith("    at "));
+    const lines = stack.split('\n');
+    let firstStackLine = lines.findIndex(line => line.startsWith('    at '));
     if (firstStackLine === -1) firstStackLine = lines.length;
-    tokens.push(lines.slice(0, firstStackLine).join("\n"));
+    tokens.push(lines.slice(0, firstStackLine).join('\n'));
     const stackLines = lines.slice(firstStackLine);
-    position = file ? positionInFile(stackLines, file) : null;
+    position = file ? positionInFile(stackLines, file) : undefined;
     if (position) {
-      const source = fs.readFileSync(file!, "utf8");
-      tokens.push("");
+      const source = fs.readFileSync(file!, 'utf8');
+      tokens.push('');
       tokens.push(
-        codeFrameColumns(
-          source,
-          { start: position },
-          { highlightCode: colors.enabled }
-        )
+          codeFrameColumns(
+              source,
+              { start: position },
+              { highlightCode: false }
+          )
       );
     }
-    tokens.push("");
-    tokens.push(colors.dim(stackLines.join("\n")));
+    tokens.push('');
+    tokens.push(stackLines.join('\n'));
   } else if (error.message) {
-    tokens.push("");
     tokens.push(error.message);
-  } else {
-    tokens.push("");
+  } else if (error.value) {
     tokens.push(error.value);
   }
   return {
     position,
-    message: tokens.join("\n"),
+    message: tokens.join('\n'),
   };
 }
 
