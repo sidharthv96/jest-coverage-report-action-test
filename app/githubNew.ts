@@ -61,12 +61,18 @@ interface GithubLogOptions {
 
 class GithubLogger {
   shouldLog = true;
+  isCI: boolean = process.env.CI === "true";
+  isGithubAction: boolean = process.env.GITHUB_ACTION !== undefined;
+
   log(
     message: string,
     type: GithubLogType = "notice",
     options: GithubLogOptions = {}
   ) {
     if (this.shouldLog) {
+      if (this.isGithubAction) {
+        message = message.replace(/\n/g, "%0A");
+      }
       const configs = Object.entries(options)
         .map(([key, option]) => `${key}=${option}`)
         .join(",");
@@ -157,15 +163,17 @@ export class GithubReporter extends BaseReporter {
 
   private _printFailureAnnotations(failures: TestCase[]) {
     failures.forEach((test, index) => {
-      const annotations = formatFailure(this.config, test, index + 1, true);
-      annotations.forEach(({ filePath, title, message, position }) => {
-        this.githubLogger.error(message.replace(/\n/g, "%0A"), {
+      const annotation = formatFailure(this.config, test, index + 1, true);
+      if (annotation) {
+        const { filePath, title, message, position } = annotation;
+
+        this.githubLogger.error(message, {
           file: filePath,
           title,
           line: position.line,
           col: position.column,
         });
-      });
+      }
     });
   }
 }
@@ -182,55 +190,52 @@ export function formatFailure(
   test: TestCase,
   index?: number,
   stdio?: boolean
-): Annotation[] {
+): Annotation | undefined {
   const title = formatTestTitle(config, test);
   const filePath = path.relative(
     process.env["GITHUB_WORKSPACE"] ?? "",
     test.location.file
   );
   const lines: string[] = [];
-  const annotations: Annotation[] = [];
   lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
-  for (const result of test.results) {
-    const failureDetails = formatResultFailure(test, result, "    ");
-    const resultTokens = failureDetails.tokens;
-    const position = failureDetails.position;
-    if (!resultTokens.length) continue;
-    if (result.retry) {
-      lines.push("");
-      lines.push(colors.gray(pad(`    Retry #${result.retry}`, "-")));
-    }
-    lines.push(...resultTokens);
+  const result = test.results.pop();
 
-    const output = ((result as any)[kOutputSymbol] || []) as TestResultOutput[];
-    if (stdio && output.length) {
-      const outputText = output
-        .map(({ chunk, type }) => {
-          const text = chunk.toString("utf8");
-          if (type === "stderr") return colors.red(stripAnsiEscapes(text));
-          return text;
-        })
-        .join("");
-      lines.push("");
-      lines.push(
-        colors.gray(pad("--- Test output", "-")) +
-          "\n\n" +
-          outputText +
-          "\n" +
-          pad("", "-")
-      );
-    }
-
+  const failureDetails = formatResultFailure(test, result, "    ");
+  const resultTokens = failureDetails.tokens;
+  const position = failureDetails.position;
+  if (!resultTokens.length) return;
+  if (result.retry) {
     lines.push("");
-    annotations.push({
-      filePath,
-      position,
-      title,
-      message: lines.join("\n"),
-    });
+    lines.push(colors.gray(pad(`    Retry #${result.retry}`, "-")));
+  }
+  lines.push(...resultTokens);
+
+  const output = ((result as any)[kOutputSymbol] || []) as TestResultOutput[];
+  if (stdio && output.length) {
+    const outputText = output
+      .map(({ chunk, type }) => {
+        const text = chunk.toString("utf8");
+        if (type === "stderr") return colors.red(stripAnsiEscapes(text));
+        return text;
+      })
+      .join("");
+    lines.push("");
+    lines.push(
+      colors.gray(pad("--- Test output", "-")) +
+        "\n\n" +
+        outputText +
+        "\n" +
+        pad("", "-")
+    );
   }
 
-  return annotations;
+  lines.push("");
+  return {
+    filePath,
+    position,
+    title,
+    message: lines.join("\n"),
+  };
 }
 
 interface FailureDetails {

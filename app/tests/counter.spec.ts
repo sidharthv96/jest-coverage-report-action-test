@@ -4,6 +4,18 @@ test.describe("suite 1", () => {
     expect(true).toBeTruthy();
   });
 
+  test.describe("suite 1.1", () => {
+    test("test", async ({ page }) => {
+      expect(false).toBeTruthy();
+    });
+
+    test.describe("suite 1.1.1", () => {
+      test("test", async ({ page }) => {
+        expect(Math.random() < 0.5).toBeTruthy();
+      });
+    });
+  });
+
   test("test 2 ", async ({ page }) => {
     expect(Math.random() < 0.5).toBeTruthy();
     expect(Math.random() < 0.5).toBeTruthy();

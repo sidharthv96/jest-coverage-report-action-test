@@ -60,7 +60,7 @@ export class BaseReporter implements Reporter {
     this._appendOutput({ chunk, type: "stderr" }, result);
   }
 
-  protected _appendOutput(
+  private _appendOutput(
     output: TestResultOutput,
     result: TestResult | undefined
   ) {

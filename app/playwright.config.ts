@@ -2,7 +2,7 @@ import { PlaywrightTestConfig } from "@playwright/test";
 import { baseURL } from "./tests/utils/constants";
 
 const config: PlaywrightTestConfig = {
-  retries: 1,
+  retries: 3,
   use: {
     baseURL,
     screenshot: "only-on-failure",
