@@ -99,7 +99,6 @@ class GithubLogger {
 
 export class GithubReporter extends BaseReporter {
   githubLogger = new GithubLogger();
-  // TODO: Add check if running in github with env
 
   override async onEnd(result: FullResult) {
     this.duration = monotonicTime() - this.monotonicStartTime;
@@ -155,6 +154,8 @@ export class GithubReporter extends BaseReporter {
     if (full && failuresToPrint.length) {
       this._printFailureAnnotations(failuresToPrint);
     }
+
+    this.githubLogger.notice("Hello world Test");
 
     // this._printSlowTests();
   }
