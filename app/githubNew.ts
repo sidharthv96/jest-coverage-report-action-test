@@ -103,24 +103,25 @@ export class GithubReporter extends BaseReporter {
     this.epilogue(true);
   }
 
-  // private _printSlowTests() {
-  //   if (!this.config.reportSlowTests) return;
-  //   const fileDurations = [...this.fileDurations.entries()];
-  //   fileDurations.sort((a, b) => b[1] - a[1]);
-  //   const count = Math.min(
-  //     fileDurations.length,
-  //     this.config.reportSlowTests.max || Number.POSITIVE_INFINITY
-  //   );
-  //   for (let i = 0; i < count; ++i) {
-  //     const duration = fileDurations[i][1];
-  //     if (duration <= this.config.reportSlowTests.threshold) break;
-  //     console.log(
-  //       `::warning title=Slow Test::${fileDurations[i][0]} (${milliseconds(
-  //         duration
-  //       )})`
-  //     );
-  //   }
-  // }
+  private _printSlowTestAnnotations() {
+    if (!this.config.reportSlowTests) return;
+    const fileDurations = [...this.fileDurations.entries()];
+    fileDurations.sort((a, b) => b[1] - a[1]);
+    const count = Math.min(
+      fileDurations.length,
+      this.config.reportSlowTests.max || Number.POSITIVE_INFINITY
+    );
+    for (let i = 0; i < count; ++i) {
+      const duration = fileDurations[i][1];
+      if (duration <= this.config.reportSlowTests.threshold) break;
+      this.githubLogger.warning(
+        `${fileDurations[i][0]} (${milliseconds(duration)})`,
+        {
+          title: "Slow Test",
+        }
+      );
+    }
+  }
 
   override epilogue(full: boolean) {
     let skipped = 0;
@@ -189,7 +190,7 @@ export class GithubReporter extends BaseReporter {
       this._printFailureAnnotations(failuresToPrint);
     }
 
-    // this._printSlowTests();
+    this._printSlowTestAnnotations();
   }
 
   private _printFailureAnnotations(failures: TestCase[]) {

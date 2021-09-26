@@ -12,6 +12,7 @@ test.describe("suite 1", () => {
     test.describe("suite 1.1.1", () => {
       test("test", async ({ page }) => {
         expect(Math.random() < 0.5).toBeTruthy();
+        await new Promise((c) => setTimeout(c, 15000));
       });
     });
   });
