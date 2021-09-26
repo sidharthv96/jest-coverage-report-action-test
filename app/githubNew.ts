@@ -126,6 +126,7 @@ export class GithubReporter extends BaseReporter {
   // }
 
   override epilogue(full: boolean) {
+    let skipped = 0;
     let expected = 0;
     const skippedWithError: TestCase[] = [];
     const unexpected: TestCase[] = [];
@@ -134,6 +135,7 @@ export class GithubReporter extends BaseReporter {
     this.suite.allTests().forEach((test) => {
       switch (test.outcome()) {
         case "skipped": {
+          ++skipped;
           if (test.results.some((result) => !!result.error))
             skippedWithError.push(test);
           break;
@@ -150,12 +152,45 @@ export class GithubReporter extends BaseReporter {
       }
     });
 
+    const noticeLines: string[] = [];
+    noticeLines.push("");
+    if (unexpected.length) {
+      noticeLines.push(colors.red(`  ${unexpected.length} failed`));
+      for (const test of unexpected)
+        noticeLines.push(
+          colors.red(formatTestHeader(this.config, test, "    "))
+        );
+    }
+    if (flaky.length) {
+      noticeLines.push(colors.yellow(`  ${flaky.length} flaky`));
+      for (const test of flaky)
+        noticeLines.push(
+          colors.yellow(formatTestHeader(this.config, test, "    "))
+        );
+    }
+    if (skipped) noticeLines.push(colors.yellow(`  ${skipped} skipped`));
+    if (expected)
+      noticeLines.push(
+        colors.green(`  ${expected} passed`) +
+          colors.dim(` (${milliseconds(this.duration)})`)
+      );
+    if (this.result.status === "timedout")
+      noticeLines.push(
+        colors.red(
+          `  Timed out waiting ${
+            this.config.globalTimeout / 1000
+          }s for the entire test run`
+        )
+      );
+
+    this.githubLogger.notice(noticeLines.join("\n"), {
+      title: "Playwright run summary",
+    });
+
     const failuresToPrint = [...unexpected, ...flaky, ...skippedWithError];
     if (full && failuresToPrint.length) {
       this._printFailureAnnotations(failuresToPrint);
     }
-
-    this.githubLogger.notice("Hello world Test");
 
     // this._printSlowTests();
   }
