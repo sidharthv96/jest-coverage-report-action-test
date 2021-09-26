@@ -161,17 +161,15 @@ export class GithubReporter extends BaseReporter {
 
   private _printFailureAnnotations(failures: TestCase[]) {
     failures.forEach((test, index) => {
-      const annotation = formatFailure(this.config, test, index + 1, true);
-      if (annotation) {
-        const { filePath, title, message, position } = annotation;
-
+      const annotations = formatFailure(this.config, test, index + 1, true);
+      annotations.forEach(({ filePath, title, message, position }) => {
         this.githubLogger.error(message, {
           file: filePath,
           title,
           line: position.line,
           col: position.column,
         });
-      }
+      });
     });
   }
 }
@@ -188,19 +186,19 @@ export function formatFailure(
   test: TestCase,
   index?: number,
   stdio?: boolean
-): Annotation | undefined {
+): Annotation[] {
   const title = formatTestTitle(config, test);
   const filePath = path.relative(
     process.env["GITHUB_WORKSPACE"] ?? "",
     test.location.file
   );
-  const lines: string[] = [];
-  let position: Position;
-  lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
+  const annotations: Annotation[] = [];
   for (const result of test.results) {
+    const lines: string[] = [];
+    lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
     const failureDetails = formatResultFailure(test, result, "    ");
     const resultTokens = failureDetails.tokens;
-    position = failureDetails.position;
+    const position = failureDetails.position;
     if (!resultTokens.length) continue;
     if (result.retry) {
       lines.push("");
@@ -228,14 +226,15 @@ export function formatFailure(
     }
 
     lines.push("");
+    annotations.push({
+      filePath,
+      position,
+      title,
+      message: lines.join("\n"),
+    });
   }
 
-  return {
-    filePath,
-    position,
-    title,
-    message: lines.join("\n"),
-  };
+  return annotations;
 }
 
 interface FailureDetails {
