@@ -226,7 +226,7 @@ export function formatFailure(
       filePath,
       position,
       title,
-      message: resultTokens.join("\n"),
+      message: lines.join("\n"),
     });
   }
 
