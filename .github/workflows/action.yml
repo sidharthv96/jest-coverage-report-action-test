@@ -17,5 +17,4 @@ jobs:
       - run: |
           cd app
           npm install
-          npx playwright install-deps
           npm run test
