@@ -60,7 +60,7 @@ export class BaseReporter implements Reporter {
     this._appendOutput({ chunk, type: "stderr" }, result);
   }
 
-  private _appendOutput(
+  protected _appendOutput(
     output: TestResultOutput,
     result: TestResult | undefined
   ) {
@@ -99,9 +99,9 @@ export class BaseReporter implements Reporter {
       const duration = fileDurations[i][1];
       if (duration <= this.config.reportSlowTests.threshold) break;
       console.log(
-        `::warning title=Slow Test::${fileDurations[i][0]} (${milliseconds(
-          duration
-        )})`
+        colors.yellow("  Slow test: ") +
+          fileDurations[i][0] +
+          colors.yellow(` (${milliseconds(duration)})`)
       );
     }
   }
@@ -170,19 +170,9 @@ export class BaseReporter implements Reporter {
 
   private _printFailures(failures: TestCase[]) {
     failures.forEach((test, index) => {
-      const annotations = formatFailure(
-        this.config,
-        test,
-        index + 1,
-        this.printTestOutput
+      console.log(
+        formatFailure(this.config, test, index + 1, this.printTestOutput)
       );
-      annotations.forEach(({ filePath, title, message, position }) => {
-        console.log(
-          `::error file=${filePath},title=${title},line=${position.line},col=${
-            position.column
-          }::${message.replace(/\n/g, "%0A")}`
-        );
-      });
     });
   }
 
@@ -193,38 +183,56 @@ export class BaseReporter implements Reporter {
   }
 }
 
-export interface Annotation {
-  filePath: string;
-  title: string;
-  message: string;
-  position?: Position;
-}
-
 export function formatFailure(
   config: FullConfig,
   test: TestCase,
   index?: number,
   stdio?: boolean
-): Annotation[] {
-  const title = formatTestTitle(config, test);
-  const filePath = path.relative(
-    process.env["GITHUB_WORKSPACE"],
-    test.location.file
-  );
+): string {
   const lines: string[] = [];
-  const annotations: Annotation[] = [];
   lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
   for (const result of test.results) {
-    const failureDetails = formatResultFailure(test, result, "    ");
-    const resultTokens = failureDetails.tokens;
-    const position = failureDetails.position;
+    const resultTokens = formatResultFailure(test, result, "    ");
     if (!resultTokens.length) continue;
     if (result.retry) {
       lines.push("");
       lines.push(colors.gray(pad(`    Retry #${result.retry}`, "-")));
     }
     lines.push(...resultTokens);
-
+    for (let i = 0; i < result.attachments.length; ++i) {
+      const attachment = result.attachments[i];
+      lines.push("");
+      lines.push(
+        colors.cyan(
+          pad(
+            `    attachment #${i + 1}: ${attachment.name} (${
+              attachment.contentType
+            })`,
+            "-"
+          )
+        )
+      );
+      if (attachment.path) {
+        const relativePath = path.relative(process.cwd(), attachment.path);
+        lines.push(colors.cyan(`    ${relativePath}`));
+        // Make this extensible
+        if (attachment.name === "trace") {
+          lines.push(colors.cyan(`    Usage:`));
+          lines.push("");
+          lines.push(
+            colors.cyan(`        npx playwright show-trace ${relativePath}`)
+          );
+          lines.push("");
+        }
+      } else {
+        if (attachment.contentType.startsWith("text/")) {
+          let text = attachment.body!.toString();
+          if (text.length > 300) text = text.slice(0, 300) + "...";
+          lines.push(colors.cyan(`    ${text}`));
+        }
+      }
+      lines.push(colors.cyan(pad("   ", "-")));
+    }
     const output = ((result as any)[kOutputSymbol] || []) as TestResultOutput[];
     if (stdio && output.length) {
       const outputText = output
@@ -243,28 +251,16 @@ export function formatFailure(
           pad("", "-")
       );
     }
-
-    lines.push("");
-    annotations.push({
-      filePath,
-      position,
-      title,
-      message: resultTokens.join("\n"),
-    });
   }
-
-  return annotations;
+  lines.push("");
+  return lines.join("\n");
 }
 
-interface FailureDetails {
-  position?: Position;
-  tokens: string[];
-}
 export function formatResultFailure(
   test: TestCase,
   result: TestResult,
   initialIndent: string
-): FailureDetails {
+): string[] {
   const resultTokens: string[] = [];
   if (result.status === "timedOut") {
     resultTokens.push("");
@@ -281,25 +277,21 @@ export function formatResultFailure(
       indent(colors.red(`Expected to fail, but passed.`), initialIndent)
     );
   }
-  let error: ErrorDetails;
-  if (result.error !== undefined) {
-    error = formatError(result.error, test.location.file);
-    resultTokens.push(indent(error.message, initialIndent));
-  }
-  return {
-    tokens: resultTokens,
-    position: error?.position,
-  };
+  if (result.error !== undefined)
+    resultTokens.push(
+      indent(formatError(result.error, test.location.file), initialIndent)
+    );
+  return resultTokens;
 }
 
-function relativeTestPath(config: FullConfig, test: TestCase): string {
+export function relativeTestPath(config: FullConfig, test: TestCase): string {
   return (
     path.relative(config.rootDir, test.location.file) ||
     path.basename(test.location.file)
   );
 }
 
-function stepSuffix(step: TestStep | undefined) {
+export function stepSuffix(step: TestStep | undefined) {
   const stepTitles = step ? step.titlePath() : [];
   return stepTitles.map((t) => " › " + t).join("");
 }
@@ -318,7 +310,7 @@ export function formatTestTitle(
   return `${projectTitle}${location} › ${titles.join(" ")}${stepSuffix(step)}`;
 }
 
-function formatTestHeader(
+export function formatTestHeader(
   config: FullConfig,
   test: TestCase,
   indent: string,
@@ -329,15 +321,9 @@ function formatTestHeader(
   return pad(header, "=");
 }
 
-interface ErrorDetails {
-  position: Position;
-  message: string;
-}
-
-export function formatError(error: TestError, file?: string): ErrorDetails {
+export function formatError(error: TestError, file?: string) {
   const stack = error.stack;
   const tokens = [];
-  let position: Position;
   if (stack) {
     tokens.push("");
     const lines = stack.split("\n");
@@ -345,9 +331,7 @@ export function formatError(error: TestError, file?: string): ErrorDetails {
     if (firstStackLine === -1) firstStackLine = lines.length;
     tokens.push(lines.slice(0, firstStackLine).join("\n"));
     const stackLines = lines.slice(firstStackLine);
-    position = file ? positionInFile(stackLines, file) : null;
-    tokens.push("::group::Stack");
-
+    const position = file ? positionInFile(stackLines, file) : null;
     if (position) {
       const source = fs.readFileSync(file!, "utf8");
       tokens.push("");
@@ -361,7 +345,6 @@ export function formatError(error: TestError, file?: string): ErrorDetails {
     }
     tokens.push("");
     tokens.push(colors.dim(stackLines.join("\n")));
-    tokens.push("::endgroup::");
   } else if (error.message) {
     tokens.push("");
     tokens.push(error.message);
@@ -369,27 +352,23 @@ export function formatError(error: TestError, file?: string): ErrorDetails {
     tokens.push("");
     tokens.push(error.value);
   }
-  return {
-    position,
-    message: tokens.join("\n"),
-  };
+  return tokens.join("\n");
 }
 
-function pad(line: string, char: string): string {
+export function pad(line: string, char: string): string {
   if (line) line += " ";
   return line + colors.gray(char.repeat(Math.max(0, 100 - line.length)));
 }
 
-function indent(lines: string, tab: string) {
+export function indent(lines: string, tab: string) {
   return lines.replace(/^(?=.+$)/gm, tab);
 }
 
-interface Position {
+export interface Position {
   column: number;
   line: number;
 }
-
-function positionInFile(
+export function positionInFile(
   stackLines: string[],
   file: string
 ): Position | undefined {
@@ -403,7 +382,7 @@ function positionInFile(
   }
 }
 
-function monotonicTime(): number {
+export function monotonicTime(): number {
   const [seconds, nanoseconds] = process.hrtime();
   return seconds * 1000 + ((nanoseconds / 1000000) | 0);
 }
