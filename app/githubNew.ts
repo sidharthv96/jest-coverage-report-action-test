@@ -127,7 +127,6 @@ export class GithubReporter extends BaseReporter {
   // }
 
   override epilogue(full: boolean) {
-    let skipped = 0;
     let expected = 0;
     const skippedWithError: TestCase[] = [];
     const unexpected: TestCase[] = [];
@@ -136,7 +135,6 @@ export class GithubReporter extends BaseReporter {
     this.suite.allTests().forEach((test) => {
       switch (test.outcome()) {
         case "skipped": {
-          ++skipped;
           if (test.results.some((result) => !!result.error))
             skippedWithError.push(test);
           break;
@@ -197,39 +195,41 @@ export function formatFailure(
     test.location.file
   );
   const lines: string[] = [];
+  let position: Position;
   lines.push(colors.red(formatTestHeader(config, test, "  ", index)));
-  const result = test.results.pop();
+  for (const result of test.results) {
+    const failureDetails = formatResultFailure(test, result, "    ");
+    const resultTokens = failureDetails.tokens;
+    position = failureDetails.position;
+    if (!resultTokens.length) continue;
+    if (result.retry) {
+      lines.push("");
+      lines.push(colors.gray(pad(`    Retry #${result.retry}`, "-")));
+    }
+    lines.push(...resultTokens);
 
-  const failureDetails = formatResultFailure(test, result, "    ");
-  const resultTokens = failureDetails.tokens;
-  const position = failureDetails.position;
-  if (!resultTokens.length) return;
-  if (result.retry) {
+    const output = ((result as any)[kOutputSymbol] || []) as TestResultOutput[];
+    if (stdio && output.length) {
+      const outputText = output
+        .map(({ chunk, type }) => {
+          const text = chunk.toString("utf8");
+          if (type === "stderr") return colors.red(stripAnsiEscapes(text));
+          return text;
+        })
+        .join("");
+      lines.push("");
+      lines.push(
+        colors.gray(pad("--- Test output", "-")) +
+          "\n\n" +
+          outputText +
+          "\n" +
+          pad("", "-")
+      );
+    }
+
     lines.push("");
-    lines.push(colors.gray(pad(`    Retry #${result.retry}`, "-")));
-  }
-  lines.push(...resultTokens);
-
-  const output = ((result as any)[kOutputSymbol] || []) as TestResultOutput[];
-  if (stdio && output.length) {
-    const outputText = output
-      .map(({ chunk, type }) => {
-        const text = chunk.toString("utf8");
-        if (type === "stderr") return colors.red(stripAnsiEscapes(text));
-        return text;
-      })
-      .join("");
-    lines.push("");
-    lines.push(
-      colors.gray(pad("--- Test output", "-")) +
-        "\n\n" +
-        outputText +
-        "\n" +
-        pad("", "-")
-    );
   }
 
-  lines.push("");
   return {
     filePath,
     position,
